@@ -1,6 +1,6 @@
-/* $Id: Base64.xs,v 1.21 2002/12/28 06:06:42 gisle Exp $
+/* $Id: Base64.xs,v 1.26 2003/01/01 18:59:06 gisle Exp $
 
-Copyright 1997-1999,2001 Gisle Aas
+Copyright 1997-2002 Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -236,3 +236,162 @@ decode_base64(sv)
 
 	OUTPUT:
 	RETVAL
+
+
+MODULE = MIME::Base64		PACKAGE = MIME::QuotedPrint
+
+#define qp_isplain(c) ((c) == '\t' || ((c) >= ' ' && (c) <= '~') && (c) != '=')
+
+SV*
+encode_qp(sv,...)
+	SV* sv
+	PROTOTYPE: $;$
+
+	PREINIT:
+	char *eol;
+	STRLEN eol_len;
+	STRLEN sv_len;
+	STRLEN linelen;
+	char *beg;
+	char *p;
+	char *end;
+	STRLEN p_len;
+
+	CODE:
+#if PERL_REVISION == 5 && PERL_VERSION >= 6
+	sv_utf8_downgrade(sv, FALSE);
+#endif
+	/* set up EOL from the second argument if present, default to "\n" */
+	if (items > 1 && SvOK(ST(1))) {
+	    eol = SvPV(ST(1), eol_len);
+	} else {
+	    eol = "\n";
+	    eol_len = 1;
+	}
+
+	p = SvPV(sv, sv_len);
+	end = p + sv_len;
+
+	RETVAL = newSV(sv_len + 1);
+	sv_setpv(RETVAL, "");
+	linelen = 0;
+
+	while (1) {
+	    beg = p;
+
+	    /* skip past as much plain text as possible */
+	    while (p < end && qp_isplain(*p)) {
+	        p++;
+	    }
+	    if (*p == '\n' || p == end) {
+		/* whitespace at end of line must be encoded */
+		while (p > beg && (*(p - 1) == '\t' || *(p - 1) == ' '))
+		    p--;
+	    }
+
+	    p_len = p - beg;
+	    if (p_len) {
+	        /* output plain text (with line breaks) */
+	        if (eol_len) {
+		    while (p_len + linelen > 75) {
+			STRLEN len = 75 - linelen;
+			sv_catpvn(RETVAL, beg, len);
+			beg += len;
+			p_len -= len;
+			if (p_len > 1) {
+			    sv_catpvn(RETVAL, "=", 1);
+			    sv_catpvn(RETVAL, eol, eol_len);
+		            linelen = 0;
+			}
+		    }
+                }
+		if (p_len) {
+	            sv_catpvn(RETVAL, beg, p_len);
+	            linelen = p_len;
+		}
+	    }
+
+	    if (*p == '\n') {
+	        sv_catpvn(RETVAL, eol, eol_len);
+	        p++;
+		linelen = 0;
+	    }
+	    else if (p < end) {
+		/* output escaped char (with line breaks) */
+		if (eol_len && linelen > 72) {
+		    sv_catpvn(RETVAL, "=", 1);
+		    sv_catpvn(RETVAL, eol, eol_len);
+		    linelen = 0;
+		}
+	        sv_catpvf(RETVAL, "=%02X", (unsigned char)*p);
+	        p++;
+	        linelen += 3;
+	    }
+	    else {
+		assert(p == end);
+	        break;
+	    }
+        }
+
+	OUTPUT:
+	RETVAL
+
+SV*
+decode_qp(sv)
+	SV* sv
+	PROTOTYPE: $
+
+        PREINIT:
+	STRLEN len;
+	char *str = (unsigned char*)SvPVbyte(sv, len);
+	char const* end = str + len;
+	char *r;
+	char *whitespace = 0;
+
+        CODE:
+	RETVAL = newSV(len ? len : 1);
+        SvPOK_on(RETVAL);
+        r = SvPVX(RETVAL);
+	while (str < end) {
+	    if (*str == ' ' || *str == '\t') {
+		if (!whitespace)
+		    whitespace = str;
+		str++;
+	    }
+	    else if (*str == '\r' && (str + 1) < end && str[1] == '\n') {
+		str++;
+	    }
+	    else if (*str == '\n') {
+		whitespace = 0;
+		*r++ = *str++;
+	    }
+	    else {
+		if (whitespace) {
+		    while (whitespace < str) {
+			*r++ = *whitespace++;
+		    }
+		    whitespace = 0;
+                }
+            	if (*str == '=' && (str + 2) < end && isxdigit(str[1]) && isxdigit(str[2])) {
+		    *r++ = (char)strtol(str + 1, 0, 16);
+		    str += 3;
+	        }
+		else if (*str == '=' && (str + 1) < end && str[1] == '\n') {
+		    str += 2;
+		}
+		else if (*str == '=' && (str + 2) < end && str[1] == '\r' && str[2] == '\n') {
+		    str += 3;
+		}
+	    	else {
+	            *r++ = *str++;
+                }
+	    }
+	}
+	*r = '\0';
+	SvCUR_set(RETVAL, r - SvPVX(RETVAL));
+
+        OUTPUT:
+	RETVAL
+
+
+MODULE = MIME::Base64		PACKAGE = MIME::Base64
