@@ -1,6 +1,6 @@
-/* $Id: Base64.xs,v 1.40 2004/01/08 13:15:06 gisle Exp $
+/* $Id: Base64.xs,v 1.41 2004/01/08 14:07:26 gisle Exp $
 
-Copyright 1997-2003 Gisle Aas
+Copyright 1997-2004 Gisle Aas
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
