@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.4 1997/04/25 23:07:32 aas Exp $
+/* $Id: Base64.xs,v 1.6 1997/06/12 15:50:38 aas Exp $
 
 Copyright (c) 1997 Gisle Aas
 
@@ -69,17 +69,18 @@ encode_base64(sv,...)
 	PROTOTYPE: $;$
 
 	PREINIT:
-	char *str;   /* string to encode */
-	int len;     /* length of the string */
-        char *eol;   /* the end-of-line sequence to use */
-        int eollen;  /* length of the EOL sequence */
-	char *r;     /* result string */
-	int rlen;    /* length of result string */
+	char *str;     /* string to encode */
+	SSize_t len;   /* length of the string */
+        char *eol;     /* the end-of-line sequence to use */
+        STRLEN eollen; /* length of the EOL sequence */
+	char *r;       /* result string */
+	STRLEN rlen;   /* length of result string */
 	unsigned char c1, c2, c3;
 	int chunk;
 
 	CODE:
-	str = SvPV(sv, len);
+	str = SvPV(sv, rlen); /* SvPV(sv, len) gives warning for signed len */
+	len = (SSize_t)rlen;
 
 	/* set up EOL from the second argument if present, default to "\n" */
 	if (items > 1 && SvOK(ST(1))) {
@@ -146,7 +147,7 @@ decode_base64(sv)
 
 	PREINIT:
 	unsigned char *str;
-	int len;
+	STRLEN len;
 	char *r;
 	int c1, c2, c3, c4;
 

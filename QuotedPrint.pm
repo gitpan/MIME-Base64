@@ -1,5 +1,5 @@
 #
-# $Id: QuotedPrint.pm,v 2.0 1997/04/25 23:09:22 aas Exp $
+# $Id: QuotedPrint.pm,v 2.1 1997/05/28 16:58:54 aas Exp $
 
 package MIME::QuotedPrint;
 
@@ -23,7 +23,7 @@ Quoted-Printable encoding specified in RFC 2045 - I<MIME (Multipurpose
 Internet Mail Extensions)>.  The Quoted-Printable encoding is intended
 to represent data that largely consists of bytes that correspond to
 printable characters in the ASCII character set.  Non-printable
-characters (as defined by enghlish americans) are represented by a
+characters (as defined by english americans) are represented by a
 triplet consisting of the character "=" followed by two hexadecimal
 digits.
 
@@ -54,7 +54,7 @@ require Exporter;
 @ISA = qw(Exporter);
 @EXPORT = qw(encode_qp decode_qp);
 
-$VERSION = sprintf("%d.%02d", q$Revision: 2.0 $ =~ /(\d+)\.(\d+)/);
+$VERSION = sprintf("%d.%02d", q$Revision: 2.1 $ =~ /(\d+)\.(\d+)/);
 
 
 sub encode_qp ($)
