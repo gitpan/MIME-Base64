@@ -1,10 +1,25 @@
+2004-08-24   Gisle Aas <gisle@ActiveState.com>
+
+   Release 3.02
+
+   The encode_qp() function now takes an optional third argument
+   to select binary encoding mode.
+
+   The result of encode_qp($non_empty, $eol) will now always be
+   $eol terminated.  If the string to encode does not end with "\n"
+   then a soft line break is appended to the result.  As an example
+   encode_qp("foo") used to be encoded as "foo", but now encodes as
+   "foo=\n".
+
+
+
 2004-03-29   Gisle Aas <gisle@ActiveState.com>
 
    Release 3.01
 
    By compiling the extension with PERL_NO_GET_CONTEXT we can
    make it slightly faster on a threaded perl.  No change on a
-   regular perl.  Patch provided by <beau@beaucox.com>.
+   regular perl.  Patch provided by Beau E. Cox <beau@beaucox.com>.
 
    Fixed missing ";" with assert.   Patch provided by
    Brendan O'Dea <bod@debian.org>.
