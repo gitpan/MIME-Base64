@@ -11,7 +11,7 @@ $x70 = "x" x 70;
     "quoted printable"],
 
    # 8-bit chars should be encoded
-   ["våre kjære norske tegn bør æres" =>
+   ["vÂre kjÊre norske tegn b¯r Êres" =>
     "v=E5re kj=E6re norske tegn b=F8r =E6res"],
 
    # trailing space should be encoded
