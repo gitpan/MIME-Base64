@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.35 2003/03/09 14:42:05 gisle Exp $
+/* $Id: Base64.xs,v 1.36 2003/05/13 16:21:25 gisle Exp $
 
 Copyright 1997-2003 Gisle Aas
 
@@ -417,6 +417,11 @@ decode_qp(sv)
                 }
 	    }
 	}
+	if (whitespace) {
+	    while (whitespace < str) {
+		*r++ = *whitespace++;
+	    }
+        }
 	*r = '\0';
 	SvCUR_set(RETVAL, r - SvPVX(RETVAL));
 
