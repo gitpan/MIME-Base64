@@ -1,6 +1,6 @@
-/* $Id: Base64.xs,v 1.8 1997/07/10 11:23:29 aas Exp $
+/* $Id: Base64.xs,v 1.10 1998/01/27 01:20:03 aas Exp $
 
-Copyright (c) 1997 Gisle Aas
+Copyright (c) 1997,1998 Gisle Aas
 
 The tables and some of the code is borrowed from metamail, which comes
 with this message:
@@ -84,10 +84,10 @@ encode_base64(sv,...)
 
 	/* set up EOL from the second argument if present, default to "\n" */
 	if (items > 1 && SvOK(ST(1))) {
-	   eol = SvPV(ST(1), eollen);
+	    eol = SvPV(ST(1), eollen);
 	} else {
-	   eol = "\n";
-	   eollen = 1;
+	    eol = "\n";
+	    eollen = 1;
 	}
 
 	/* calculate the length of the result */
@@ -98,7 +98,7 @@ encode_base64(sv,...)
 	}
 
 	/* allocate a result buffer */
-	RETVAL = newSV(rlen+1);
+	RETVAL = newSV(rlen ? rlen : 1);
 	SvPOK_on(RETVAL);	
 	SvCUR_set(RETVAL, rlen);
 	r = SvPVX(RETVAL);
@@ -109,7 +109,7 @@ encode_base64(sv,...)
 		char *c = eol;
 		char *e = eol + eollen;
 		while (c < e)
-		   *r++ = *c++;
+		    *r++ = *c++;
 		chunk = 0;
 	    }
 	    c1 = *str++;
@@ -148,13 +148,15 @@ decode_base64(sv)
 	PREINIT:
 	unsigned char *str;
 	STRLEN len;
+	STRLEN rlen;
 	char *r;
 	int c1, c2, c3, c4;
 
 	CODE:
 	str = (unsigned char*)SvPV(sv, len);
 
-	RETVAL = newSV(len/4*3 + 1);  /* enough, but might waste some space */
+        rlen = len * 3 / 4;
+	RETVAL = newSV(rlen ? rlen : 1);
 	SvPOK_on(RETVAL);
 	r = SvPVX(RETVAL);
 
