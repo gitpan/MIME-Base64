@@ -1,8 +1,21 @@
-1998-02-27   Gisle Aas <gisle@aas.no>
+2001-02-23   Gisle Aas <gisle@ActiveState.com>
+
+   Release 2.12
+
+   Speed up pure perl base64 encoder/decoder by using join/map instead
+   of while loop.  Contributed by Arno Beckmann <arno@gmx.de>
+
+   Doc update contributed by Jerrad Pierce <belg4mit@CALLOWAY.MIT.EDU>
+
+   Downgrade UTF8 strings before starting to encode.
+
+
+
+1999-02-27   Gisle Aas <gisle@aas.no>
 
    Release 2.11
 
-   Fixed bogues "Premature end of base64 data" warning.  Bug spotted
+   Fixed bogus "Premature end of base64 data" warning.  Bug spotted
    by Dwayne Jacques Fontenot.
 
    Workaround for Redhat shipping trial releases of perl.
