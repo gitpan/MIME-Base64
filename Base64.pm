@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 2.3 1997/06/27 09:04:40 aas Exp $
+# $Id: Base64.pm,v 2.5 1997/07/10 11:30:14 aas Exp $
 
 package MIME::Base64;
 
@@ -44,8 +44,7 @@ broken into lines.
 Decode a base64 string by calling the decode_base64() function.  This
 function takes a single argument which is the string to decode and
 returns the decoded data.  Any character not part of the legal base64
-chars is ignored.  The decode_base64() function might croak if the
-sequence to decode ends prematurely.
+chars is ignored.
 
 =back
 
@@ -82,7 +81,7 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = '2.02';
+$VERSION = '2.03';
 
 eval { bootstrap MIME::Base64 $VERSION; };
 if ($@) {
@@ -98,7 +97,6 @@ if ($@) {
 # The XS implementation runs about 20 times faster, but the perl
 # code might be more portable, so it is still supported.
 
-use Carp ();
 use integer;
 
 sub old_encode_base64 ($;$)
@@ -131,8 +129,10 @@ sub old_decode_base64 ($)
     my $res = "";
 
     $str =~ tr|A-Za-z0-9+=/||cd;            # remove non-base64 chars
-    Carp::croak("Base64 decoder requires string length to be a multiple of 4")
-      if length($str) % 4;
+    if (length($str) % 4) {
+	require Carp;
+	Carp::croak("Base64 decoder requires string length to be a multiple of 4")
+    }
     $str =~ s/=+$//;                        # remove padding
     $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
     while ($str =~ /(.{1,60})/gs) {
