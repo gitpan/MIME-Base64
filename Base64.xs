@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.15 1998/12/18 13:16:27 aas Exp $
+/* $Id: Base64.xs,v 1.17 1999/02/27 21:04:13 gisle Exp $
 
 Copyright 1997-1998 Gisle Aas
 
@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #include "patchlevel.h"
-#if PATCHLEVEL <= 3 || (PATCHLEVEL == 4 && SUBVERSION <= 4)
+#if PATCHLEVEL <= 4 && !defined(PL_dowarn)
    #define PL_dowarn dowarn
 #endif
 
@@ -180,7 +180,8 @@ decode_base64(sv)
 
 		if (str == end) {
 		    if (i < 4) {
-			if (PL_dowarn) warn("Premature end of base64 data");
+			if (i && PL_dowarn)
+			    warn("Premature end of base64 data");
 			if (i < 2) goto thats_it;
 			if (i == 2) c[2] = EQ;
 			c[3] = EQ;

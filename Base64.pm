@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 2.13 1998/12/18 13:14:20 aas Exp $
+# $Id: Base64.pm,v 2.14 1999/02/27 20:40:04 gisle Exp $
 
 package MIME::Base64;
 
@@ -103,7 +103,7 @@ or if you know you have enough memory
 
 =head1 COPYRIGHT
 
-Copyright 1995-1998 Gisle Aas.
+Copyright 1995-1999 Gisle Aas.
 
 This library is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -126,7 +126,7 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 eval { bootstrap MIME::Base64 $VERSION; };
 if ($@) {
