@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.29 2003/01/03 21:44:52 gisle Exp $
+/* $Id: Base64.xs,v 1.32 2003/01/05 07:49:07 gisle Exp $
 
 Copyright 1997-2003 Gisle Aas
 
@@ -295,21 +295,26 @@ encode_qp(sv,...)
 	    if (p_len) {
 	        /* output plain text (with line breaks) */
 	        if (eol_len) {
-		    while (p_len + linelen > 75) {
-			STRLEN len = 75 - linelen;
+		    STRLEN max_last_line = (*p == '\n' || p == end)
+					      ? MAX_LINE         /* .......\n */
+					      : (*(p + 1) == '\n' || (p + 1) == end)
+	                                        ? MAX_LINE - 3   /* ....=XX\n */
+	                                        : MAX_LINE - 4;  /* ...=XX=\n */
+		    while (p_len + linelen > max_last_line) {
+			STRLEN len = MAX_LINE - 1 - linelen;
+			if (len > p_len)
+			    len = p_len;
 			sv_catpvn(RETVAL, p_beg, len);
 			p_beg += len;
 			p_len -= len;
-			if (p_len > 1) {
-			    sv_catpvn(RETVAL, "=", 1);
-			    sv_catpvn(RETVAL, eol, eol_len);
-		            linelen = 0;
-			}
+			sv_catpvn(RETVAL, "=", 1);
+			sv_catpvn(RETVAL, eol, eol_len);
+		        linelen = 0;
 		    }
                 }
 		if (p_len) {
 	            sv_catpvn(RETVAL, p_beg, p_len);
-	            linelen = p_len;
+	            linelen += p_len;
 		}
 	    }
 
@@ -320,7 +325,7 @@ encode_qp(sv,...)
 	    }
 	    else if (p < end) {
 		/* output escaped char (with line breaks) */
-		if (eol_len && linelen > 72) {
+		if (eol_len && linelen > MAX_LINE - 4) {
 		    sv_catpvn(RETVAL, "=", 1);
 		    sv_catpvn(RETVAL, eol, eol_len);
 		    linelen = 0;

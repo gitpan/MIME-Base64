@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 2.24 2003/01/03 21:44:52 gisle Exp $
+# $Id: Base64.pm,v 2.25 2003/01/05 08:01:33 gisle Exp $
 
 package MIME::Base64;
 
@@ -137,7 +137,7 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = '2.15';
+$VERSION = '2.16';
 
 eval { bootstrap MIME::Base64 $VERSION; };
 if ($@) {
