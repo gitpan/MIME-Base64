@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.14 1998/11/13 22:01:07 aas Exp $
+/* $Id: Base64.xs,v 1.15 1998/12/18 13:16:27 aas Exp $
 
 Copyright 1997-1998 Gisle Aas
 
@@ -36,7 +36,7 @@ extern "C" {
 #endif
 
 #include "patchlevel.h"
-#if PATCHLEVEL < 5 && SUBVERSION < 5
+#if PATCHLEVEL <= 3 || (PATCHLEVEL == 4 && SUBVERSION <= 4)
    #define PL_dowarn dowarn
 #endif
 
@@ -157,7 +157,7 @@ decode_base64(sv)
 
 	PREINIT:
 	STRLEN len;
-	register unsigned char *str = SvPV(sv, len);
+	register unsigned char *str = (unsigned char*)SvPV(sv, len);
 	unsigned char const* end = str + len;
 	char *r;
 	unsigned char c[4];
