@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 1.18 2001/02/24 06:27:01 gisle Exp $
+/* $Id: Base64.xs,v 1.21 2002/12/28 06:06:42 gisle Exp $
 
 Copyright 1997-1999,2001 Gisle Aas
 
@@ -11,24 +11,19 @@ metamail, which comes with this message:
 
   Copyright (c) 1991 Bell Communications Research, Inc. (Bellcore)
 
-  Permission to use, copy, modify, and distribute this material 
-  for any purpose and without fee is hereby granted, provided 
-  that the above copyright notice and this permission notice 
-  appear in all copies, and that the name of Bellcore not be 
-  used in advertising or publicity pertaining to this 
-  material without the specific, prior written permission 
-  of an authorized representative of Bellcore.	BELLCORE 
-  MAKES NO REPRESENTATIONS ABOUT THE ACCURACY OR SUITABILITY 
-  OF THIS MATERIAL FOR ANY PURPOSE.  IT IS PROVIDED "AS IS", 
+  Permission to use, copy, modify, and distribute this material
+  for any purpose and without fee is hereby granted, provided
+  that the above copyright notice and this permission notice
+  appear in all copies, and that the name of Bellcore not be
+  used in advertising or publicity pertaining to this
+  material without the specific, prior written permission
+  of an authorized representative of Bellcore.	BELLCORE
+  MAKES NO REPRESENTATIONS ABOUT THE ACCURACY OR SUITABILITY
+  OF THIS MATERIAL FOR ANY PURPOSE.  IT IS PROVIDED "AS IS",
   WITHOUT ANY EXPRESS OR IMPLIED WARRANTIES.
 
 */
 
-
-#include <ConditionalMacros.h>
-#if PRAGMA_IMPORT
-#pragma import on
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,10 +33,6 @@ extern "C" {
 #include "XSUB.h"
 #ifdef __cplusplus
 }
-#endif
-
-#if PRAGMA_IMPORT
-#pragma import off
 #endif
 
 #include "patchlevel.h"
@@ -78,7 +69,27 @@ static unsigned char index_64[256] = {
     XX,XX,XX,XX, XX,XX,XX,XX, XX,XX,XX,XX, XX,XX,XX,XX,
 };
 
+#ifdef SvPVbyte
+#   if PERL_REVISION == 5 && PERL_VERSION < 7
+       /* SvPVbyte does not work in perl-5.6.1, borrowed version for 5.7.3 */
+#       undef SvPVbyte
+#       define SvPVbyte(sv, lp) \
+          ((SvFLAGS(sv) & (SVf_POK|SVf_UTF8)) == (SVf_POK) \
+           ? ((lp = SvCUR(sv)), SvPVX(sv)) : my_sv_2pvbyte(aTHX_ sv, &lp))
+       static char *
+       my_sv_2pvbyte(pTHX_ register SV *sv, STRLEN *lp)
+       {   
+           sv_utf8_downgrade(sv,0);
+           return SvPV(sv,*lp);
+       }
+#   endif
+#else
+#   define SvPVbyte SvPV
+#endif
 
+#ifndef NATIVE_TO_ASCII
+#   define NATIVE_TO_ASCII(ch) (ch)
+#endif
 
 MODULE = MIME::Base64		PACKAGE = MIME::Base64
 
@@ -98,7 +109,7 @@ encode_base64(sv,...)
 	int chunk;
 
 	CODE:
-#ifdef sv_utf8_downgrade
+#if PERL_REVISION == 5 && PERL_VERSION >= 6
 	sv_utf8_downgrade(sv, FALSE);
 #endif
 	str = SvPV(sv, rlen); /* SvPV(sv, len) gives warning for signed len */
@@ -169,7 +180,7 @@ decode_base64(sv)
 
 	PREINIT:
 	STRLEN len;
-	register unsigned char *str = (unsigned char*)SvPV(sv, len);
+	register unsigned char *str = (unsigned char*)SvPVbyte(sv, len);
 	unsigned char const* end = str + len;
 	char *r;
 	unsigned char c[4];
@@ -186,7 +197,7 @@ decode_base64(sv)
 	while (str < end) {
 	    int i = 0;
             do {
-		unsigned char uc = index_64[*str++];
+		unsigned char uc = index_64[NATIVE_TO_ASCII(*str++)];
 		if (uc != INVALID)
 		    c[i++] = uc;
 
@@ -201,12 +212,12 @@ decode_base64(sv)
 		    break;
 		}
             } while (i < 4);
-	    
+	
 	    if (c[0] == EQ || c[1] == EQ) {
 		if (PL_dowarn) warn("Premature padding of base64 data");
 		break;
             }
-	    /* printf("c0=%d,c1=%d,c2=%d,c3=%d\n", c[0],c[1],c[2],c[3]);/**/
+	    /* printf("c0=%d,c1=%d,c2=%d,c3=%d\n", c[0],c[1],c[2],c[3]);*/
 
 	    *r++ = (c[0] << 2) | ((c[1] & 0x30) >> 4);
 
