@@ -1,5 +1,5 @@
 #
-# $Id: Base64.pm,v 2.22 2003/01/01 19:45:17 gisle Exp $
+# $Id: Base64.pm,v 2.24 2003/01/03 21:44:52 gisle Exp $
 
 package MIME::Base64;
 
@@ -137,7 +137,7 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(encode_base64 decode_base64);
 
-$VERSION = '2.14';
+$VERSION = '2.15';
 
 eval { bootstrap MIME::Base64 $VERSION; };
 if ($@) {
@@ -189,6 +189,7 @@ sub old_decode_base64 ($)
     }
     $str =~ s/=+$//;                        # remove padding
     $str =~ tr|A-Za-z0-9+/| -_|;            # convert to uuencoded format
+    return "" unless length $str;
 
     ## I guess this could be written as
     #return unpack("u", join('', map( chr(32 + length($_)*3/4) . $_,
