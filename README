@@ -1,38 +1,38 @@
------BEGIN PGP SIGNED MESSAGE-----
+This package contains a base64 encoder/decoder and a quoted-printable
+encoder/decoder.  These encoding methods are specified in RFC 2045 -
+MIME (Multipurpose Internet Mail Extensions).
 
-Friday, March 6, 1998
+The Base64 encoding is designed to represent arbitrary sequences of
+octets in a form that need not be humanly readable. A 65-character
+subset ([A-Za-z0-9+/=]) of US-ASCII is used, enabling 6 bits to be
+represented per printable character.
 
-This is the MIME::Base64 module with shared libraries compiled for 
-MacPerl.  Shared libraries run only on PPC and CFM68K versions, not 
-non-CFM 68K versions.
+The quoted-printable encoding is intended to represent data that
+largely consists of bytes that correspond to printable characters in
+the ASCII character set.  Non-printable characters are represented by
+a triplet consisting of the character "=" followed by two hexadecimal
+digits.
 
-This was compiled with MPW and Codewarrior.  Passed all tests.  
-I have no 68K machine so I can't test the CFM68K version.  Let me 
-know of any problems.
+The MIME::Base64 and MIME::QuotedPrint modules used to be part of
+libwww-perl package.  They are now distributed separately (as this
+package).  The main improvement is that the base64 encoder/decoder is
+implemented by XS functions.  This makes it about 20 times faster than
+the old implementation as pure Perl.
 
-Decompress macblib.sit.hqx and install the three files in "macblib".
-Installing into your site_perl directory is best:
+In order to install and use this package you will need Perl version
+5.002 or better.  Installation as usual:
 
-    {MACPERL}site_perl:MIME:Base64.pm
-    {MACPERL}site_perl:MIME:QuotedPrint.pm
-    {MACPERL}site_perl:MacCFM68K:auto:MIME:Base64:Base64
-    {MACPERL}site_perl:MacPPC:auto:MIME:Base64:Base64
+   perl Makefile.PL
+   make
+   make test
+   make install
 
-Also read README.orig, the original README file for this distribution.
+The library can also be installed without XS support (for instance because
+you don't have a working C compiler installed).  Simply remove the Base64.xs
+file before running 'perl Makefile.PL' and everything should work the same,
+although encoding and decoding will be much slower.
 
------BEGIN PGP SIGNATURE-----
-Version: PGPfreeware 5.0 for non-commercial use <http://www.pgp.com>
-Charset: noconv
+Copyright 1995-1998 Gisle Aas.  <gisle@aas.no>
 
-iQCVAwUBNQBUwyhcZja3bnKtAQE5UQP9HLR0E7H0vS8egMdAge6KFP3MXUQFv3fT
-exco+puK2QV6jOKngKYCta+bMdwy9qq3LOZmhB+Jp5v2qe/bSJTANQMuhvYa8VOO
-tADFap5LR1vmw3kro6taBKbA2E4JMbhgRLeoBbipxPBp7qoo5MZeoMQkp82zO/ez
-EDrIToRSnP0=
-=0kBn
------END PGP SIGNATURE-----
-
--- 
-Chris Nandor          mailto:pudge@pobox.com         http://pudge.net/
-%PGPKey=('B76E72AD',[1024,'0824 090B CE73 CA10  1FF7 7F13 8180 B6B6'])
-#==               New Book:  MacPerl: Power and Ease               ==#
-#==    Publishing Date: Early 1998. http://www.ptf.com/macperl/    ==#
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
