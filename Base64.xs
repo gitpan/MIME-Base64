@@ -1,9 +1,13 @@
-/* $Id: Base64.xs,v 1.11 1998/10/21 13:01:40 aas Exp $
+/* $Id: Base64.xs,v 1.13 1998/10/21 18:59:31 aas Exp $
 
-Copyright (c) 1997,1998 Gisle Aas
+Copyright 1997-1998 Gisle Aas
 
-The tables and some of the code is borrowed from metamail, which comes
-with this message:
+This library is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
+
+The tables and some of the code that used to be here was borrowed from
+metamail, which comes with this message:
 
   Copyright (c) 1991 Bell Communications Research, Inc. (Bellcore)
 
@@ -151,7 +155,6 @@ decode_base64(sv)
 	register unsigned char *str = SvPV(sv, len);
 	unsigned char const* end = str + len;
 	char *r;
-	int i;
 	unsigned char c[4];
 
 	CODE:
@@ -164,12 +167,11 @@ decode_base64(sv)
         r = SvPVX(RETVAL);
 
 	while (str < end) {
-	    i = 0;
+	    int i = 0;
             do {
-		unsigned char uc = index_64[*str];
+		unsigned char uc = index_64[*str++];
 		if (uc != INVALID)
 		    c[i++] = uc;
-		str++;
 
 		if (str == end) {
 		    if (i < 4) {
