@@ -1,4 +1,4 @@
-/* $Id: Base64.xs,v 3.5 2005/11/26 10:44:14 gisle Exp $
+/* $Id$
 
 Copyright 1997-2004 Gisle Aas
 
@@ -258,7 +258,11 @@ decode_base64(sv)
 
 MODULE = MIME::Base64		PACKAGE = MIME::QuotedPrint
 
+#ifdef EBCDIC
+#define qp_isplain(c) ((c) == '\t' || ((!isprint(c) && (c) != '=')))
+#else
 #define qp_isplain(c) ((c) == '\t' || (((c) >= ' ' && (c) <= '~') && (c) != '='))
+#endif
 
 SV*
 encode_qp(sv,...)
