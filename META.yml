@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               MIME-Base64
-version:            3.12
+version:            3.13
 abstract:           The RFC 2045 encodings; base64 and quoted-printable
 author:
     - Gisle Aas <gisle@activestate.com>
